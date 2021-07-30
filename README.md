@@ -1,6 +1,13 @@
 # A Pacman Game Created By Pure JavaScript
 
-![screenshot](./app_screenshot1.png)
+- Pure javaScript Game with HTML and CSS
+
+Spesifications: 
+1. First of all it's a simple Pacman game run on the browser
+2. Ghosts follow Pacman. If they see Pacman inside the walls, they follow it unless Pacman hides behind the walls.
+3. When Pacman eats power pellets ghosts begin to move randomly.  
+
+![screenshot](./pacman.png)
 
 ## Built With
 
@@ -8,7 +15,7 @@
 
 ## Live
 
-<!-- [A Dice Game ](https://emirsagit.github.io/dice-game/) -->
+[A Pacman Game ](https://emirsagit.github.io/pacman/)
 
 ## Getting Started
 

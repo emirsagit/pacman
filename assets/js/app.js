@@ -47,10 +47,17 @@ const layout = [
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 ];
 
+/**
+ * Checks wall before moving
+ * @param rotation is direction of pacman
+ */
 const checkWall = (rotation) => {
   return layout[pacmanCurrentIndex + rotation] === 1;
 };
 
+/**
+ * Checks game over
+ */
 const checkGameOver = () => {
   if (squares[pacmanCurrentIndex].classList.contains("ghost") && !ghostsScared) {
     console.log("3");
@@ -58,6 +65,9 @@ const checkGameOver = () => {
   }
 };
 
+/**
+ * Checks win
+ */
 const checkForWinning = () => {
   if (score >= 1000) {
     won = true;
@@ -66,12 +76,18 @@ const checkForWinning = () => {
   }
 };
 
+/**
+ * Event function when pacman ate apple
+ */
 const pacmanAteApple = () => {
   squares[pacmanCurrentIndex].classList.remove("pac-dot");
   score += 5;
   scoreDisplay.innerHTML = score;
 };
 
+/**
+ * Event function when pacman ate power pellet
+ */
 const pacmanAtePowerPellet = () => {
   ghostScared = true;
   squares[pacmanCurrentIndex].classList.remove("power-pellet");
@@ -88,6 +104,9 @@ const pacmanAtePowerPellet = () => {
   }, 15000);
 };
 
+/**
+ * According to the direction adds pacman proper classes
+ */
 const addClassToPacman = () => {
   switch (direction) {
     case 1:
@@ -108,6 +127,9 @@ const addClassToPacman = () => {
   }
 };
 
+/**
+ * Continues game when user click continue button
+ */
 const continueGame = () => {
   messageSection.classList.add("display-none");
   move();
@@ -116,6 +138,9 @@ const continueGame = () => {
   });
 };
 
+/**
+ * Event function runs after game over
+ */
 const gameOver = (ghost = null) => {
   if (ghost) {
     ghost.resetGhost();
@@ -127,6 +152,9 @@ const gameOver = (ghost = null) => {
   stopAll();
 };
 
+/**
+ * Stops ghosts and pacman
+ */
 const stopAll = () => {
   ghosts.forEach((ghost) => {
     clearInterval(ghost.timerId);
@@ -135,6 +163,9 @@ const stopAll = () => {
   messageSection.classList.remove("display-none");
 };
 
+/**
+ * Moves pacman
+ */
 const move = () => {
   intervalPacmanMove = setInterval(() => {
     won ? "" : checkForWinning();
@@ -163,7 +194,6 @@ const move = () => {
       pacmanAtePowerPellet();
     }
     if (!ghostsScared && squares[pacmanCurrentIndex].classList.contains("ghost")) {
-      console.log("1");
       gameOver();
     }
   }, pacmanSpeed);
@@ -196,6 +226,13 @@ const createBoard = () => {
   move();
 };
 
+/**
+ * Memorizes clicking arrow buttons
+ * When user click arrow buttons
+ * İf there's a wall in that direction
+ * The function memorizes it
+ * It moves when possible
+ */
 const changeDirectionWhenPossible = (rotation) => {
   if (intervalCheckWall) {
     clearInterval(intervalCheckWall);
@@ -233,6 +270,9 @@ btnContinue.addEventListener("click", continueGame);
 
 createBoard();
 
+/**
+ * Ghost class
+ */
 class Ghost {
   constructor(className, startIndex, speed, directions) {
     let elements = {
@@ -248,6 +288,9 @@ class Ghost {
     Object.assign(this, elements);
   }
 
+  /**
+   * Moves ghost
+   */
   move() {
     this.timerId = setInterval(() => {
       if ((ghostsScared || this.isScared) && squares[this.currentIndex].classList.contains("pacman")) {
@@ -284,17 +327,25 @@ class Ghost {
       }
     }, this.speed);
   }
-
+  /**
+   * Reset ghost class
+   */
   resetGhost() {
     squares[this.currentIndex].classList.remove(this.className, "ghost", "scared");
     this.currentIndex = this.startIndex;
     squares[this.currentIndex].classList.add(this.className, "ghost");
   }
 
+  /**
+   * Event function when pacman eats power pellet
+   */
   atePowerPellet() {
     this.isScared = true;
   }
 
+  /**
+   * Changes ghost class when moving
+   */
   #moving() {
     squares[this.currentIndex].classList.remove(this.className, "ghost", "scared");
     this.currentIndex += this.direction;
@@ -305,30 +356,41 @@ class Ghost {
     }
   }
 
+  /**
+   * Changes ghost direction randomly but logically
+   * Ghost follows pacman
+   */
   #changeDirection() {
     let rndDirection = this.#getRndDirection(directions);
     const modulePacman = pacmanCurrentIndex % width;
     const moduleGhost = this.currentIndex % width;
     const divisionPacman = Math.floor(pacmanCurrentIndex / width);
     const divisionGost = Math.floor(this.currentIndex / width);
+    // When ghost scared or when current ghost in the ghost-lair, ghost direction changes randomly
     if (squares[this.currentIndex].classList.contains("ghost-lair") || this.isScared) {
       this.direction = rndDirection;
+      // If current pacman index greater than current ghost index
     } else if (pacmanCurrentIndex > this.currentIndex) {
+      // If they are in the same column
       if (modulePacman === moduleGhost) {
         rndDirection = this.#getRndDirection([1, -1]);
         this.#isEmptyPossibleNextDirection(width) ? (this.direction = width) : (this.direction = rndDirection);
-      } else if (divisionPacman === divisionGost) {
+      } // If they are in the same row
+      else if (divisionPacman === divisionGost) {
         rndDirection = this.#getRndDirection([width, -width]);
         this.#isEmptyPossibleNextDirection(1) ? (this.direction = 1) : (this.direction = rndDirection);
       } else {
         rndDirection = this.#getRndDirection([width, 1, -1]);
         this.direction = rndDirection;
       }
-    } else {
+    } // If current pacman index lower than current ghost index
+    else {
+      // If they are in the same column
       if (modulePacman === moduleGhost) {
         rndDirection = this.#getRndDirection([1, -1]);
         this.#isEmptyPossibleNextDirection(-width) ? (this.direction = -width) : (this.direction = rndDirection);
-      } else if (divisionPacman === divisionGost) {
+      } // If they are in the same row
+      else if (divisionPacman === divisionGost) {
         rndDirection = this.#getRndDirection([width, -width]);
         this.#isEmptyPossibleNextDirection(-1) ? (this.direction = -1) : (this.direction = rndDirection);
       } else {
@@ -338,26 +400,37 @@ class Ghost {
     }
   }
 
+  /**
+   * Checks wall when moving
+   */
   #checkWall() {
     return squares[this.currentIndex + this.direction].classList.contains("wall");
   }
 
+  /**
+   * Checks next direction is empty
+   */
   #isEmptyPossibleNextDirection(direction) {
     return !squares[this.currentIndex + direction].classList.contains("wall");
   }
 
+  /**
+   * Get random direction
+   */
   #getRndDirection(directions) {
     return directions[Math.floor(Math.random() * directions.length)];
   }
 }
 
+/**
+ * Creates ghosts
+ */
 const ghosts = [
   new Ghost("blinky", 294, pacmanSpeed, directions),
   new Ghost("pinky", 293, pacmanSpeed, directions),
   new Ghost("inky", 351, pacmanSpeed, directions),
   new Ghost("clyde", 379, pacmanSpeed, directions),
 ];
-
 ghosts.forEach((ghost) => {
   squares[ghost.startIndex].classList.add(ghost.className, "ghost");
   ghost.move();
